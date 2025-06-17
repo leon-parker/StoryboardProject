@@ -10,10 +10,10 @@ import numpy as np
 from diffusers import StableDiffusionXLPipeline
 from PIL import Image
 
+# Import real modular components instead of placeholder classes
 from consistency_manager import ConsistencyManager
-from quality_evaluator import QualityEvaluator
+from quality_evaluator import QualityEvaluator  
 from ip_adapter_manager import IPAdapterManager
-
 
 class CartoonPipelineWithIPAdapter:
     """Main pipeline for character-consistent cartoon generation using IP-Adapter"""
@@ -299,7 +299,7 @@ class CartoonPipelineWithIPAdapter:
     
     def _test_ip_adapter_baked_vae_compatibility(self):
         """Test IP-Adapter with baked VAE"""
-        print("🧪 Testing IP-Adapter + baked VAE compatibility...")
+        print("🧪 Testing IP-Adapter with baked VAE...")
         
         if not self.ip_adapter_loaded:
             print("⚠️ IP-Adapter not loaded, skipping compatibility test")
@@ -644,16 +644,123 @@ class CartoonPipelineWithIPAdapter:
             "evaluation": evaluations[best_index]
         }
     
+    def generate_with_progressive_improvement(self, prompt, num_images=3, use_ip_adapter=None, 
+                                             quality_threshold=0.5, max_iterations=3):
+        """Generate images with iterative prompt improvement using existing PromptImprover"""
+        from prompt_improver import PromptImprover
+        
+        prompt_improver = PromptImprover(self.consistency_manager, self.quality_evaluator)
+        
+        current_prompt = prompt
+        original_prompt = prompt
+        current_negative = "blurry, low quality, distorted, deformed"
+        
+        best_image = None
+        best_score = 0.0
+        score_progression = []
+        prompt_history = [prompt]
+        progressive_improvement_applied = False
+        
+        for iteration in range(max_iterations):
+            print(f"🔄 Iteration {iteration + 1}/{max_iterations}: {current_prompt[:60]}...")
+            
+            # Generate images using your existing selection method
+            result = self.generate_with_selection(
+                prompt=current_prompt,
+                negative_prompt=current_negative,
+                num_images=num_images,
+                use_ip_adapter=use_ip_adapter
+            )
+            
+            if not result:
+                print(f"⚠️ Generation failed in iteration {iteration + 1}")
+                break
+            
+            current_score = result["best_score"]
+            current_image = result["best_image"]
+            score_progression.append(current_score)
+            
+            # Update overall best if this iteration is better
+            if current_score > best_score:
+                best_score = current_score
+                best_image = current_image
+            
+            print(f"✨ Score this iteration: {current_score:.3f}")
+            
+            # Analyze the result using your PromptImprover
+            is_first_selected = len(self.consistency_manager.selected_images_history) == 1
+            analysis = prompt_improver.analyze_prompt_image_alignment(
+                current_image, 
+                current_prompt,
+                is_first_image=is_first_selected
+            )
+            
+            print(f"📊 CLIP similarity: {analysis['clip_similarity']:.3f}")
+            print(f"📝 Caption: {analysis['caption'][:60]}...")
+            
+            # Check consistency issues
+            consistency_issues = analysis.get("consistency_issues", {})
+            if consistency_issues["severity"] != "low":
+                print(f"⚠️ Consistency issues detected: {consistency_issues['severity']}")
+            
+            # Check if we should continue improving
+            if current_score >= quality_threshold:
+                print(f"✅ Quality threshold ({quality_threshold}) reached!")
+                break
+            
+            # Only try to improve prompt if we haven't reached the last iteration
+            if iteration < max_iterations - 1:
+                # Generate improved prompts using your PromptImprover
+                improved = prompt_improver.improve_prompts(
+                    current_prompt, 
+                    analysis, 
+                    current_negative
+                )
+                
+                new_prompt = improved["positive"]
+                new_negative = improved["negative"]
+                
+                if new_prompt != current_prompt:
+                    current_prompt = new_prompt
+                    current_negative = new_negative
+                    prompt_history.append(current_prompt)
+                    progressive_improvement_applied = True
+                    
+                    print(f"🔧 Prompt refined: {current_prompt[:60]}...")
+                    if improved["improvements"]:
+                        print(f"✨ Applied improvements: {', '.join(improved['improvements'][:2])}...")
+                else:
+                    print("🤔 No prompt improvement suggested")
+        
+        # Show final improvement summary
+        if len(score_progression) > 1:
+            total_improvement = score_progression[-1] - score_progression[0]
+            print(f"📈 Score progression: {score_progression[0]:.3f} → {score_progression[-1]:.3f} (Δ{total_improvement:+.3f})")
+        
+        return {
+            "best_image": best_image,
+            "best_score": best_score,
+            "used_ip_adapter": use_ip_adapter and hasattr(self, 'ip_adapter_manager') and self.ip_adapter_manager.available,
+            "progressive_improvement": progressive_improvement_applied,
+            "final_prompt": current_prompt,
+            "original_prompt": original_prompt,
+            "score_progression": score_progression,
+            "prompt_history": prompt_history,
+            "iterations_completed": len(score_progression)
+        }
+    
     def generate_storyboard_sequence(self, prompts_list, character_reference_image=None, 
-                                   iterations_per_prompt=1, images_per_iteration=3):
-        """Generate character-consistent storyboard sequence with baked VAE support"""
+                                    iterations_per_prompt=1, images_per_iteration=3):
+        """Generate character-consistent storyboard sequence with progressive prompt improvement"""
         if not self.available:
             return None
         
-        if not self.ip_adapter_loaded:
+        # Check IP-Adapter availability properly
+        ip_adapter_available = hasattr(self, 'ip_adapter_manager') and self.ip_adapter_manager.available
+        if not ip_adapter_available:
             print("⚠️ IP-Adapter not loaded - storyboard may lack consistency")
         
-        print(f"📚 Generating storyboard with {len(prompts_list)} prompts (baked VAE optimized)")
+        print(f"📚 Generating storyboard with {len(prompts_list)} prompts with progressive prompt improvement")
         
         # Set character reference if provided
         if character_reference_image is not None:
@@ -666,11 +773,12 @@ class CartoonPipelineWithIPAdapter:
         for prompt_idx, prompt in enumerate(prompts_list):
             print(f"\n📖 PROMPT {prompt_idx + 1}/{len(prompts_list)}: {prompt}")
             
-            # Use IP-Adapter if available
-            result = self.generate_with_selection(
+            # Use progressive improvement for each prompt
+            result = self.generate_with_progressive_improvement(
                 prompt=prompt,
                 num_images=images_per_iteration,
-                use_ip_adapter=self.ip_adapter_loaded
+                use_ip_adapter=ip_adapter_available,
+                quality_threshold=0.5  # Adjust threshold as needed
             )
             
             if not result:
@@ -681,33 +789,67 @@ class CartoonPipelineWithIPAdapter:
             if used_ip_adapter:
                 ip_adapter_used_count += 1
             
+            # Enhanced result tracking with progressive improvement data
             sequence_results.append({
                 "prompt": prompt,
                 "prompt_index": prompt_idx,
                 "best_image": result["best_image"],
                 "final_score": result["best_score"],
                 "used_ip_adapter": used_ip_adapter,
-                "iterations_used": iterations_per_prompt
+                "iterations_used": iterations_per_prompt,
+                "progressive_improvement": result.get("progressive_improvement", False),
+                "final_prompt": result.get("final_prompt", prompt),
+                "original_prompt": result.get("original_prompt", prompt),
+                "score_progression": result.get("score_progression", [result["best_score"]]),
+                "prompt_history": result.get("prompt_history", [prompt])
             })
             
+            # Show improvement details
+            if result.get("progressive_improvement", False):
+                scores = result.get("score_progression", [])
+                if len(scores) > 1:
+                    improvement = scores[-1] - scores[0]
+                    print(f"📈 Progressive improvement: {scores[0]:.3f} → {scores[-1]:.3f} (Δ{improvement:+.3f})")
+                
+                # Show final prompt if it changed
+                final_prompt = result.get("final_prompt", prompt)
+                if final_prompt != prompt:
+                    print(f"✨ Final optimized prompt: {final_prompt[:80]}...")
+            
             # Mark character reference as established after first generation
-            if prompt_idx == 0 and self.character_reference_image is not None:
+            if prompt_idx == 0 and hasattr(self, 'character_reference_image') and self.character_reference_image is not None:
                 character_reference_established = True
             
             # Show progress
-            if prompt_idx > 0 and self.consistency_manager.available:
+            if prompt_idx > 0 and hasattr(self, 'consistency_manager') and self.consistency_manager.available:
                 consistency_report = self.consistency_manager.get_consistency_report()
                 if consistency_report["available"]:
                     print(f"📊 CLIP Consistency: {consistency_report['consistency_grade']} "
                           f"(Avg: {consistency_report['average_consistency']:.3f})")
         
         # Final reports
-        final_consistency = self.consistency_manager.get_consistency_report()
+        final_consistency = {"available": False}
+        if hasattr(self, 'consistency_manager') and self.consistency_manager.available:
+            final_consistency = self.consistency_manager.get_consistency_report()
+        
+        # Calculate improvement statistics
+        total_improvements = sum(1 for r in sequence_results if r.get("progressive_improvement", False))
+        total_score_improvement = sum(
+            (max(r["score_progression"]) - min(r["score_progression"])) 
+            for r in sequence_results if len(r.get("score_progression", [])) > 1
+        )
         
         print(f"\n🎉 STORYBOARD SEQUENCE COMPLETE!")
         print(f"📖 Generated: {len(sequence_results)} images")
         print(f"🎭 IP-Adapter used: {ip_adapter_used_count} times")
-        print(f"🔧 Baked VAE compatible: {self.baked_vae_compatible}")
+        print(f"🔧 Progressive improvement applied: {total_improvements}/{len(sequence_results)} prompts")
+        if total_score_improvement > 0:
+            print(f"📈 Total quality improvement: +{total_score_improvement:.3f}")
+        
+        # Handle baked VAE status if available
+        baked_vae_compatible = getattr(self, 'baked_vae_compatible', True)
+        baked_vae_config = getattr(self, 'config', {}).get("baked_vae", {})
+        print(f"🔧 Baked VAE compatible: {baked_vae_compatible}")
         
         if final_consistency["available"]:
             print(f"📊 Overall CLIP Consistency: {final_consistency['consistency_grade']} "
@@ -717,13 +859,19 @@ class CartoonPipelineWithIPAdapter:
             "sequence_results": sequence_results,
             "consistency_report": final_consistency,
             "ip_adapter_status": {
-                "available": self.ip_adapter_loaded,
-                "character_reference_set": self.character_reference_image is not None,
+                "available": ip_adapter_available,
+                "character_reference_set": hasattr(self, 'character_reference_image') and self.character_reference_image is not None,
                 "used_count": ip_adapter_used_count
             },
+            "progressive_improvement_stats": {
+                "prompts_improved": total_improvements,
+                "total_prompts": len(sequence_results),
+                "total_score_improvement": total_score_improvement,
+                "improvement_rate": total_improvements / len(sequence_results) if sequence_results else 0
+            },
             "baked_vae_status": {
-                "compatible": self.baked_vae_compatible,
-                "optimizations_used": self.config["baked_vae"]
+                "compatible": baked_vae_compatible,
+                "optimizations_used": baked_vae_config
             },
             "total_prompts": len(prompts_list),
             "successful_generations": len(sequence_results),
@@ -882,7 +1030,6 @@ class CartoonPipelineWithIPAdapter:
             print(f"❌ Emergency test failed: {e}")
             return False
 
-
 # Enhanced test and reporting functions
 def generate_enhanced_test_report(sequence_result, output_dir, total_time, pipeline_status=None):
     """Generate comprehensive test report with baked VAE diagnostics"""
@@ -995,7 +1142,6 @@ def generate_enhanced_test_report(sequence_result, output_dir, total_time, pipel
     
     print(f"📋 Enhanced test report saved to: {report_path}")
 
-
 def run_baked_vae_diagnostics(pipeline):
     """Run comprehensive diagnostics for baked VAE compatibility"""
     print("\n🔬 RUNNING BAKED VAE DIAGNOSTICS")
@@ -1042,7 +1188,6 @@ def run_baked_vae_diagnostics(pipeline):
     
     print("\n" + "=" * 50)
     return status
-
 
 if __name__ == "__main__":
     print("🎨 Enhanced Cartoon Pipeline with Baked VAE Support")
