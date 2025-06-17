@@ -123,7 +123,7 @@ def test_character_consistency():
     print()
     
     # Create output directory
-    output_dir = "test_storyboard_output"
+    output_dir = "test_storyboard_output2"
     os.makedirs(output_dir, exist_ok=True)
     
     # Generate storyboard
@@ -133,7 +133,7 @@ def test_character_consistency():
     sequence_result = pipeline.generate_storyboard_sequence(
         prompts_list=test_prompts,
         character_reference_image=None,  # Let first image establish reference
-        iterations_per_prompt=1,         # Single iteration for speed
+        iterations_per_prompt=2,         # Single iteration for speed
         images_per_iteration=3           # Generate 3 options per prompt
     )
     
