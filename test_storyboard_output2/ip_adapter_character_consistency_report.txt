@@ -1,7 +1,7 @@
 IP-ADAPTER CHARACTER CONSISTENCY TEST REPORT
 ==================================================
 
-Generation Time: 5570.0 seconds
+Generation Time: 6606.3 seconds
 Total Frames: 5
 Character Reference Established: True
 
@@ -12,39 +12,39 @@ IP-ADAPTER STATUS:
 
 CLIP CONSISTENCY ANALYSIS (Backup Metric):
   Grade: Excellent
-  Average Score: 0.841
-  Score Range: 0.745 - 0.931
-  Standard Deviation: 0.057
+  Average Score: 0.864
+  Score Range: 0.786 - 0.932
+  Standard Deviation: 0.042
 
 FRAME DETAILS:
 
 Frame 1:
   Prompt: young boy waking up in bed, stretching arms, cartoon style, simple clean art
-  Score: 0.582
+  Score: 0.599
   IP-Adapter Used: True
   File: frame_01.png
 
 Frame 2:
   Prompt: same young boy sitting on edge of bed, cartoon style, simple clean art
-  Score: 0.586
+  Score: 0.598
   IP-Adapter Used: True
   File: frame_02.png
 
 Frame 3:
   Prompt: same young boy brushing teeth in bathroom, cartoon style, simple clean art
-  Score: 0.564
+  Score: 0.593
   IP-Adapter Used: True
   File: frame_03.png
 
 Frame 4:
   Prompt: same young boy getting dressed in bedroom, cartoon style, simple clean art
-  Score: 0.570
+  Score: 0.583
   IP-Adapter Used: True
   File: frame_04.png
 
 Frame 5:
   Prompt: same young boy eating breakfast at kitchen table, cartoon style, simple clean art
-  Score: 0.554
+  Score: 0.575
   IP-Adapter Used: True
   File: frame_05.png
 
