@@ -1,0 +1,27 @@
+SIMPLIFIED SOCIAL STORY GENERATION REPORT
+=============================================
+
+Purpose: Autism education social story
+Approach: Simplified dual IP-Adapter (working version)
+Educational Focus: Social skills, friendship, communication
+Dual IP-Adapters: YES
+Total scenes: 5/5
+Success rate: 100.0%
+Total generation time: 829.5s
+Average quality score: 0.830
+
+SOCIAL SKILLS COVERED:
+-------------------------
+1. Making friends and introductions
+2. Appropriate greetings and body language
+3. Turn-taking in conversation
+4. Sharing interests and finding common ground
+5. Cooperative play and following social rules
+
+SCENE BREAKDOWN:
+--------------------
+making_friends (single/Alex): Score 0.800, Time 247.7s
+saying_hello (single/Emma): Score 0.800, Time 327.6s
+conversation (dual/both): Score 0.850, Time 56.5s
+shared_interests (dual/both): Score 0.850, Time 140.3s
+playing_together (dual/both): Score 0.850, Time 57.3s

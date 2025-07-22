@@ -1,0 +1,32 @@
+{
+  "prompt": "child eating breakfast cereal at kitchen table, cartoon style, simple background",
+  "caption": "a boy eating cereal",
+  "similarity": 1.0,
+  "face_count": 0,
+  "face_positions": [],
+  "hf_analysis": {
+    "available": true,
+    "results": {
+      "classification": "Error: 400",
+      "objects": "Error: 400",
+      "advanced_caption": "Error: 404"
+    }
+  },
+  "quality_score": 1.0,
+  "recommendations": [
+    "\u274c No character visible - unsuitable for autism storyboards"
+  ],
+  "context": "autism_storyboard",
+  "autism_suitability": {
+    "suitable": false,
+    "score": 0,
+    "reasons": [
+      "No visible characters",
+      "High prompt accuracy"
+    ]
+  },
+  "face_analysis": {
+    "count": 0,
+    "positions": []
+  }
+}

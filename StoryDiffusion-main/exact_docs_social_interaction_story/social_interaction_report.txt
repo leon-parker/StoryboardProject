@@ -1,0 +1,39 @@
+SOCIAL INTERACTION STORY REPORT
+===================================
+
+SUCCESS: Official diffusers documentation exactly
+STORY: Social interaction skills for autism education
+PATTERN: Single adapter with masking for dual characters
+SYNTAX: [[ip_image1, ip_image2]] and [[scale1, scale2]]
+COMPRESSED: All prompts under 77 tokens
+
+SOCIAL SKILLS COVERED:
+- Recognizing social opportunities
+- Initiating social contact
+- Appropriate greetings and responses
+- Extending and accepting social invitations
+- Turn-taking in conversation
+- Expressing empathy and emotional understanding
+- Cooperative social play
+
+01_alex_notices_emma: Recognizing social opportunities
+  Score: 0.950, Time: 16.2s
+
+02_alex_approaches: Initiating social contact
+  Score: 0.850, Time: 21.1s
+
+03_alex_says_hello: Appropriate greetings and responses
+  Score: 0.850, Time: 21.2s
+
+04_emma_invites_conversation: Extending and accepting social invitations
+  Score: 0.850, Time: 21.1s
+
+05_talking_together: Turn-taking in conversation
+  Score: 0.850, Time: 21.2s
+
+06_alex_shows_empathy: Expressing empathy and emotional understanding
+  Score: 0.850, Time: 21.2s
+
+07_playing_together: Cooperative social play
+  Score: 0.850, Time: 21.0s
+

@@ -1,0 +1,13 @@
+{
+  "scene_number": 2,
+  "scene_name": "classroom",
+  "scene_time": "9:00 AM",
+  "prompt": "school boy writing in notebook at classroom desk, focused learning, same young boy",
+  "final_prompt": "school boy writing in notebook at classroom desk, focused learning, same young boy, detailed, high quality, detailed",
+  "tifa_score": 0.3168178617954254,
+  "clip_similarity": 0.3195689916610718,
+  "caption": "there is a boy in a blue shirt and tie writing in a notebook",
+  "iterations_completed": 2,
+  "score_improvement": 0.0,
+  "generation_timestamp": "2025-06-04T21:46:51.023053"
+}

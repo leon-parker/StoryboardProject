@@ -1,0 +1,8 @@
+{
+  "global_step": 50,
+  "epoch": 1,
+  "recent_loss": 0.5969852402806282,
+  "best_loss": 0.5969852402806282,
+  "learning_rate": 4.999984632121367e-05,
+  "patience_counter": 0
+}

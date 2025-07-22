@@ -1,0 +1,47 @@
+{
+  "prompt": "boy brushing teeth in bathroom mirror, cartoon style, simple background",
+  "caption": "a boy brushing his teeth in the bathroom",
+  "similarity": 1.0,
+  "face_count": 1,
+  "face_positions": [
+    [
+      453,
+      219,
+      139,
+      139
+    ]
+  ],
+  "hf_analysis": {
+    "available": true,
+    "results": {
+      "classification": "Error: 400",
+      "objects": "Error: 400",
+      "advanced_caption": "Error: 404"
+    }
+  },
+  "quality_score": 1.0,
+  "recommendations": [
+    "\u2705 Perfect single character - ideal for autism learning",
+    "\ud83c\udf1f Excellent for autism storyboards!"
+  ],
+  "context": "autism_storyboard",
+  "autism_suitability": {
+    "suitable": true,
+    "score": 70,
+    "reasons": [
+      "Single clear character",
+      "High prompt accuracy"
+    ]
+  },
+  "face_analysis": {
+    "count": 1,
+    "positions": [
+      [
+        453,
+        219,
+        139,
+        139
+      ]
+    ]
+  }
+}

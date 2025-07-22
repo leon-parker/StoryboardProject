@@ -1,0 +1,13 @@
+{
+  "character_name": "Alice",
+  "character_description": "a young woman with long brown hair, wearing casual clothes, friendly smile",
+  "timestamp": "20250624_110532",
+  "config": {
+    "consistency_strength": 0.8,
+    "attention_strength": 0.7,
+    "memory_optimization": true,
+    "save_weights": true,
+    "max_characters": 5,
+    "recommended_prompts": 6
+  }
+}
